@@ -214,7 +214,7 @@
 
 <header>
   <div class="container">
-    <h1>🥩 Beef & Snacks</h1>
+    <h1>Kruoch's Kitchen</h1>
     <p>Pickup Orders</p>
   </div>
 </header>
@@ -524,135 +524,123 @@
 
   async function placeOrder() {
 
-    const error =
-      document.getElementById("error");
+  const error = document.getElementById("error");
+  const loading = document.getElementById("loading");
 
-    error.style.display = "none";
-    error.textContent = "";
+  error.style.display = "none";
+  error.textContent = "";
 
-    const name =
-      document.getElementById("name").value.trim();
+  const name = document.getElementById("name").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+  const pickupDate = document.getElementById("pickupDate").value;
+  const pickupTime = document.getElementById("pickupTime").value;
+  const notes = document.getElementById("notes").value.trim();
 
-    const phone =
-      document.getElementById("phone").value.trim();
-
-    const pickupDate =
-      document.getElementById("pickupDate").value;
-
-    const pickupTime =
-      document.getElementById("pickupTime").value;
-
-    const notes =
-      document.getElementById("notes").value.trim();
-
-    if (getItemCount() === 0) {
-      showError("Please add at least one item.");
-      return;
-    }
-
-    if (!name) {
-      showError("Please enter your name.");
-      return;
-    }
-
-    if (!phone) {
-      showError("Please enter your phone number.");
-      return;
-    }
-
-    if (!pickupDate) {
-      showError("Please select a pickup date.");
-      return;
-    }
-
-    if (!pickupTime) {
-      showError("Please select a pickup time.");
-      return;
-    }
-
-    const order = {
-      name: name,
-      phone: phone,
-
-      beefSticks:
-        cart.beefSticks,
-
-      beefJerky:
-        cart.beefJerky,
-
-      soyMilk:
-        cart.soyMilk,
-
-      pickupDate:
-        pickupDate,
-
-      pickupTime:
-        pickupTime,
-
-      total:
-        getTotal(),
-
-      notes:
-        notes
-    };
-
-    const loading =
-      document.getElementById("loading");
-
-    loading.style.display = "block";
-
-    try {
-
-      await fetch(
-        SCRIPT_URL,
-        {
-          method: "POST",
-          mode: "no-cors",
-          headers: {
-            "Content-Type":
-              "text/plain;charset=utf-8"
-          },
-          body: JSON.stringify(order)
-        }
-      );
-
-      document.getElementById(
-        "confirmationText"
-      ).innerHTML =
-        "Your pickup is scheduled for <strong>" +
-        formatDate(pickupDate) +
-        "</strong> at <strong>" +
-        pickupTime +
-        "</strong>.<br><br>" +
-        "Order total: <strong>$" +
-        getTotal().toFixed(2) +
-        "</strong>";
-
-      document.getElementById(
-        "confirmation"
-      ).style.display = "block";
-
-      document.getElementById(
-        "checkout"
-      ).style.display = "none";
-
-      document.querySelector(
-        ".confirmation"
-      ).scrollIntoView({
-        behavior: "smooth"
-      });
-
-    } catch (err) {
-
-      showError(
-        "There was a problem submitting your order. Please try again."
-      );
-
-    } finally {
-
-      loading.style.display = "none";
-    }
+  // Validate order
+  if (getItemCount() === 0) {
+    showError("Please add at least one item.");
+    return;
   }
+
+  if (!name) {
+    showError("Please enter your name.");
+    return;
+  }
+
+  if (!phone) {
+    showError("Please enter your phone number.");
+    return;
+  }
+
+  if (!pickupDate) {
+    showError("Please select a pickup date.");
+    return;
+  }
+
+  if (!pickupTime) {
+    showError("Please select a pickup time.");
+    return;
+  }
+
+  // Create the order object.
+  // These names MUST match the Apps Script.
+  const order = {
+    name: name,
+    phone: phone,
+
+    beefSticks: Number(cart.beefSticks),
+    beefJerky: Number(cart.beefJerky),
+    soyMilk: Number(cart.soyMilk),
+
+    pickupDate: pickupDate,
+    pickupTime: pickupTime,
+
+    total: Number(getTotal()),
+
+    notes: notes
+  };
+
+  console.log("ORDER BEING SENT:", order);
+
+  loading.style.display = "block";
+
+  try {
+
+    await fetch(SCRIPT_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8"
+      },
+      body: JSON.stringify(order)
+    });
+
+    /*
+      The Apps Script has received the request.
+      Because no-cors is being used, the browser cannot
+      read the response from Google.
+    */
+
+    document.getElementById(
+      "confirmationText"
+    ).innerHTML =
+      "Your pickup is scheduled for <strong>" +
+      formatDate(pickupDate) +
+      "</strong> at <strong>" +
+      pickupTime +
+      "</strong>.<br><br>" +
+      "Order total: <strong>$" +
+      getTotal().toFixed(2) +
+      "</strong>";
+
+    document.getElementById(
+      "confirmation"
+    ).style.display = "block";
+
+    document.getElementById(
+      "checkout"
+    ).style.display = "none";
+
+    document.querySelector(
+      ".confirmation"
+    ).scrollIntoView({
+      behavior: "smooth"
+    });
+
+  } catch (err) {
+
+    console.error(err);
+
+    showError(
+      "There was a problem submitting your order. Please try again."
+    );
+
+  } finally {
+
+    loading.style.display = "none";
+  }
+}
+
 
   function showError(message) {
     const error =
