@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beef & Snacks - Pickup Orders</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f6f3ee;
+      color: #242424;
+    }
+
+    .container {
+      width: min(700px, 92%);
+      margin: 0 auto;
+    }
+
+    header {
+      background: #651d1d;
+      color: white;
+      text-align: center;
+      padding: 35px 20px;
+    }
+
+    header h1 {
+      margin: 0 0 8px;
+      font-size: 32px;
+    }
+
+    header p {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    main {
+      padding: 25px 0 50px;
+    }
+
+    h2 {
+      margin-top: 10px;
+    }
+
+    .product {
+      background: white;
+      border-radius: 14px;
+      padding: 20px;
+      margin: 15px 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+    }
+
+    .product h3 {
+      margin: 0 0 6px;
+      font-size: 21px;
+    }
+
+    .description {
+      color: #666;
+      margin-bottom: 12px;
+    }
+
+    .price {
+      font-weight: bold;
+      font-size: 19px;
+      margin-bottom: 15px;
+    }
+
+    .quantity-control {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .quantity-control button {
+      width: 44px;
+      height: 44px;
+      background: #651d1d;
+      color: white;
+      font-size: 22px;
+    }
+
+    .quantity {
+      min-width: 30px;
+      text-align: center;
+      font-size: 19px;
+      font-weight: bold;
+    }
+
+    .cart {
+      background: white;
+      border-radius: 14px;
+      padding: 20px;
+      margin-top: 25px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+    }
+
+    .cart-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .total {
+      display: flex;
+      justify-content: space-between;
+      font-size: 22px;
+      font-weight: bold;
+      padding-top: 15px;
+    }
+
+    .primary-button {
+      width: 100%;
+      padding: 16px;
+      margin-top: 20px;
+      background: #651d1d;
+      color: white;
+      font-size: 18px;
+    }
+
+    .primary-button:hover {
+      background: #4e1515;
+    }
+
+    .checkout {
+      display: none;
+      background: white;
+      border-radius: 14px;
+      padding: 20px;
+      margin-top: 25px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 13px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+      background: white;
+    }
+
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    .error {
+      display: none;
+      background: #ffe5e5;
+      color: #9b0000;
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 15px;
+    }
+
+    .confirmation {
+      display: none;
+      background: #e7f6e9;
+      color: #174d1f;
+      border-radius: 14px;
+      padding: 25px;
+      margin-top: 25px;
+      text-align: center;
+    }
+
+    .confirmation h2 {
+      margin-top: 0;
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      margin-top: 15px;
+      color: #555;
+    }
+
+    @media (max-width: 500px) {
+      header h1 {
+        font-size: 26px;
+      }
+
+      .product {
+        padding: 17px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="container">
+    <h1>🥩 Beef & Snacks</h1>
+    <p>Pickup Orders</p>
+  </div>
+</header>
+
+<main class="container">
+
+  <h2>Our Menu</h2>
+
+  <div class="product">
+    <h3>Beef Sticks</h3>
+    <div class="description">10 sticks</div>
+    <div class="price">$25.00</div>
+
+    <div class="quantity-control">
+      <button type="button" onclick="changeQuantity('beefSticks', -1)">−</button>
+      <div class="quantity" id="beefSticksQty">0</div>
+      <button type="button" onclick="changeQuantity('beefSticks', 1)">+</button>
+    </div>
+  </div>
+
+  <div class="product">
+    <h3>Beef Jerky</h3>
+    <div class="price">$15.00</div>
+
+    <div class="quantity-control">
+      <button type="button" onclick="changeQuantity('beefJerky', -1)">−</button>
+      <div class="quantity" id="beefJerkyQty">0</div>
+      <button type="button" onclick="changeQuantity('beefJerky', 1)">+</button>
+    </div>
+  </div>
+
+  <div class="product">
+    <h3>Soy Milk</h3>
+    <div class="price">$9.00</div>
+
+    <div class="quantity-control">
+      <button type="button" onclick="changeQuantity('soyMilk', -1)">−</button>
+      <div class="quantity" id="soyMilkQty">0</div>
+      <button type="button" onclick="changeQuantity('soyMilk', 1)">+</button>
+    </div>
+  </div>
+
+  <div class="cart">
+    <h2>Your Order</h2>
+
+    <div id="cartItems">
+      <p>Your cart is empty.</p>
+    </div>
+
+    <div class="total">
+      <span>Total</span>
+      <span id="total">$0.00</span>
+    </div>
+
+    <button
+      type="button"
+      class="primary-button"
+      onclick="showCheckout()">
+      CHECKOUT
+    </button>
+  </div>
+
+  <div class="checkout" id="checkout">
+
+    <h2>Pickup Information</h2>
+
+    <label for="name">Name *</label>
+    <input
+      type="text"
+      id="name"
+      autocomplete="name"
+      required>
+
+    <label for="phone">Phone *</label>
+    <input
+      type="tel"
+      id="phone"
+      autocomplete="tel"
+      required>
+
+    <label for="pickupDate">Pickup Date *</label>
+    <input
+      type="date"
+      id="pickupDate"
+      required>
+
+    <label for="pickupTime">Pickup Time *</label>
+    <select id="pickupTime" required>
+      <option value="">Select a pickup time</option>
+    </select>
+
+    <label for="notes">Order Notes</label>
+    <textarea
+      id="notes"
+      placeholder="Optional special instructions"></textarea>
+
+    <div class="error" id="error"></div>
+
+    <div class="loading" id="loading">
+      Submitting your order...
+    </div>
+
+    <button
+      type="button"
+      class="primary-button"
+      onclick="placeOrder()">
+      PLACE ORDER
+    </button>
+
+  </div>
+
+  <div class="confirmation" id="confirmation">
+    <h2>✓ Order Received!</h2>
+
+    <p id="confirmationText"></p>
+
+    <p>
+      Thank you for your order!
+    </p>
+  </div>
+
+</main>
+
+<script>
+  /*
+    IMPORTANT:
+    This is your Google Apps Script web-app URL.
+  */
+  const SCRIPT_URL =
+    "https://script.google.com/macros/s/AKfycbzyTvjw39xRKtA7KFKLYIDt7YxJJH4bdC48fV3guDDW3JytYArgzmXdSpa-3RgYhoFZ/exec";
+
+  const products = {
+    beefSticks: {
+      name: "Beef Sticks",
+      price: 25
+    },
+
+    beefJerky: {
+      name: "Beef Jerky",
+      price: 15
+    },
+
+    soyMilk: {
+      name: "Soy Milk",
+      price: 9
+    }
+  };
+
+  const cart = {
+    beefSticks: 0,
+    beefJerky: 0,
+    soyMilk: 0
+  };
+
+  function changeQuantity(product, amount) {
+    cart[product] += amount;
+
+    if (cart[product] < 0) {
+      cart[product] = 0;
+    }
+
+    document.getElementById(product + "Qty").textContent =
+      cart[product];
+
+    updateCart();
+  }
+
+  function updateCart() {
+    const cartItems = document.getElementById("cartItems");
+
+    let total = 0;
+    let itemCount = 0;
+    let html = "";
+
+    Object.keys(products).forEach(function(product) {
+      const quantity = cart[product];
+
+      if (quantity > 0) {
+        const itemTotal =
+          quantity * products[product].price;
+
+        total += itemTotal;
+        itemCount += quantity;
+
+        html += `
+          <div class="cart-row">
+            <span>
+              ${products[product].name} × ${quantity}
+            </span>
+            <span>
+              $${itemTotal.toFixed(2)}
+            </span>
+          </div>
+        `;
+      }
+    });
+
+    if (itemCount === 0) {
+      cartItems.innerHTML =
+        "<p>Your cart is empty.</p>";
+    } else {
+      cartItems.innerHTML = html;
+    }
+
+    document.getElementById("total").textContent =
+      "$" + total.toFixed(2);
+  }
+
+  function getTotal() {
+    let total = 0;
+
+    Object.keys(products).forEach(function(product) {
+      total +=
+        cart[product] *
+        products[product].price;
+    });
+
+    return total;
+  }
+
+  function getItemCount() {
+    return (
+      cart.beefSticks +
+      cart.beefJerky +
+      cart.soyMilk
+    );
+  }
+
+  function showCheckout() {
+    if (getItemCount() === 0) {
+      alert("Please add at least one item to your order.");
+      return;
+    }
+
+    document.getElementById("checkout").style.display =
+      "block";
+
+    document.getElementById("checkout").scrollIntoView({
+      behavior: "smooth"
+    });
+  }
+
+  function setupPickupTimes() {
+    const select =
+      document.getElementById("pickupTime");
+
+    /*
+      Every 30 minutes from 9:00 AM through 7:00 PM.
+    */
+
+    for (
+      let minutes = 9 * 60;
+      minutes <= 19 * 60;
+      minutes += 30
+    ) {
+
+      const hour24 = Math.floor(minutes / 60);
+      const minute = minutes % 60;
+
+      let hour = hour24 % 12;
+
+      if (hour === 0) {
+        hour = 12;
+      }
+
+      const ampm =
+        hour24 >= 12 ? "PM" : "AM";
+
+      const minuteText =
+        minute === 0 ? "00" : minute;
+
+      const label =
+        hour + ":" + minuteText + " " + ampm;
+
+      const option =
+        document.createElement("option");
+
+      option.value = label;
+      option.textContent = label;
+
+      select.appendChild(option);
+    }
+  }
+
+  function setupPickupDate() {
+    const dateInput =
+      document.getElementById("pickupDate");
+
+    const today =
+      new Date();
+
+    const year =
+      today.getFullYear();
+
+    const month =
+      String(today.getMonth() + 1).padStart(2, "0");
+
+    const day =
+      String(today.getDate()).padStart(2, "0");
+
+    const todayString =
+      `${year}-${month}-${day}`;
+
+    dateInput.min = todayString;
+    dateInput.value = todayString;
+  }
+
+  async function placeOrder() {
+
+    const error =
+      document.getElementById("error");
+
+    error.style.display = "none";
+    error.textContent = "";
+
+    const name =
+      document.getElementById("name").value.trim();
+
+    const phone =
+      document.getElementById("phone").value.trim();
+
+    const pickupDate =
+      document.getElementById("pickupDate").value;
+
+    const pickupTime =
+      document.getElementById("pickupTime").value;
+
+    const notes =
+      document.getElementById("notes").value.trim();
+
+    if (getItemCount() === 0) {
+      showError("Please add at least one item.");
+      return;
+    }
+
+    if (!name) {
+      showError("Please enter your name.");
+      return;
+    }
+
+    if (!phone) {
+      showError("Please enter your phone number.");
+      return;
+    }
+
+    if (!pickupDate) {
+      showError("Please select a pickup date.");
+      return;
+    }
+
+    if (!pickupTime) {
+      showError("Please select a pickup time.");
+      return;
+    }
+
+    const order = {
+      name: name,
+      phone: phone,
+
+      beefSticks:
+        cart.beefSticks,
+
+      beefJerky:
+        cart.beefJerky,
+
+      soyMilk:
+        cart.soyMilk,
+
+      pickupDate:
+        pickupDate,
+
+      pickupTime:
+        pickupTime,
+
+      total:
+        getTotal(),
+
+      notes:
+        notes
+    };
+
+    const loading =
+      document.getElementById("loading");
+
+    loading.style.display = "block";
+
+    try {
+
+      await fetch(
+        SCRIPT_URL,
+        {
+          method: "POST",
+          mode: "no-cors",
+          headers: {
+            "Content-Type":
+              "text/plain;charset=utf-8"
+          },
+          body: JSON.stringify(order)
+        }
+      );
+
+      document.getElementById(
+        "confirmationText"
+      ).innerHTML =
+        "Your pickup is scheduled for <strong>" +
+        formatDate(pickupDate) +
+        "</strong> at <strong>" +
+        pickupTime +
+        "</strong>.<br><br>" +
+        "Order total: <strong>$" +
+        getTotal().toFixed(2) +
+        "</strong>";
+
+      document.getElementById(
+        "confirmation"
+      ).style.display = "block";
+
+      document.getElementById(
+        "checkout"
+      ).style.display = "none";
+
+      document.querySelector(
+        ".confirmation"
+      ).scrollIntoView({
+        behavior: "smooth"
+      });
+
+    } catch (err) {
+
+      showError(
+        "There was a problem submitting your order. Please try again."
+      );
+
+    } finally {
+
+      loading.style.display = "none";
+    }
+  }
+
+  function showError(message) {
+    const error =
+      document.getElementById("error");
+
+    error.textContent = message;
+    error.style.display = "block";
+  }
+
+  function formatDate(dateString) {
+    const parts =
+      dateString.split("-");
+
+    const date =
+      new Date(
+        Number(parts[0]),
+        Number(parts[1]) - 1,
+        Number(parts[2])
+      );
+
+    return date.toLocaleDateString(
+      undefined,
+      {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+      }
+    );
+  }
+
+  setupPickupTimes();
+  setupPickupDate();
+  updateCart();
+</script>
+
+</body>
+</html>
